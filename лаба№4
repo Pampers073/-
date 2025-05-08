@@ -1,0 +1,48 @@
+import numpy as np, matplotlib.pyplot as plt
+
+def load_matrix():
+    try:
+        A = np.loadtxt("matrix_data.txt", dtype=int)
+        if A.shape[0] != A.shape[1] or A.shape[0] % 2 != 0: raise ValueError
+        return A
+    except: exit("Ошибка: matrix_data.txt должен содержать квадратную матрицу чётного размера")
+
+def build_F(A):
+    F, h = A.copy(), A.shape[0] // 2
+    E, B, C = A[:h, :h], A[:h, h:], A[h:, h:]
+    zeros = sum(E[:, j].tolist().count(0) for j in range(1, h, 2))
+    product = np.prod(E[E != 0]) if np.any(E != 0) else 0
+    print(f"\nНулей в нечётных столбцах E: {zeros}\nПроизведение элементов в E: {product}")
+    if zeros > product:
+        F[:h, h:], F[h:, h:] = np.flip(C, axis=1), np.flip(B, axis=1)
+    else:
+        F[:h, :h], F[h:, h:] = C.copy(), E.copy()
+    return F
+
+def compute_result(A, F, K):
+    try:
+        d = np.linalg.det(A); t = np.trace(F)
+        print(f"\nОпределитель A: {d:.2f}\nСумма диагоналей F: {t}")
+        return np.linalg.inv(A) @ A.T - K * np.linalg.inv(F) if d > t else (A + np.tril(A) - F.T) * K
+    except: return "Ошибка: одна из матриц необратима"
+
+def plot_graphs(F):
+    fig, axs = plt.subplots(1, 3, figsize=(15, 4))
+    axs[0].plot(F.sum(axis=1), 'o-'); axs[0].set_title("Сумма по строкам")
+    axs[1].bar(range(F.shape[1]), np.median(F, axis=0)); axs[1].set_title("Медиана по столбцам")
+    axs[2].hist(F.flatten(), bins=10, density=True, color='purple'); axs[2].set_title("Плотность значений")
+    for ax in axs: ax.grid(True)
+    plt.tight_layout(); plt.show()
+
+def main():
+    K = int(input("Введите K: "))
+    A = load_matrix()
+    print("\nМатрица A:\n", A)
+    F = build_F(A)
+    print("\nМатрица F:\n", F)
+    R = compute_result(A, F, K)
+    print("\nРезультат:\n", R)
+    plot_graphs(F)
+
+main() # Матвеев ИСТбд-12
+

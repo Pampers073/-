@@ -1,0 +1,39 @@
+from itertools import combinations_with_replacement
+import timeit
+
+fruits = ['Яблоко', 'Банан', 'Апельсин']
+N = 7
+
+def algorithmic_method(fruits, N):
+    if N == 1:
+        return [(fruit,) for fruit in fruits]
+    smaller_combinations = algorithmic_method(fruits, N - 1)
+    return list({tuple(sorted((fruit,) + combo)) for fruit in fruits for combo in smaller_combinations})
+
+def python_method(fruits, N):
+    return list(combinations_with_replacement(fruits, N))
+
+time_algo = timeit.timeit(lambda: algorithmic_method(fruits, N), number=10)
+time_py = timeit.timeit(lambda: python_method(fruits, N), number=10)
+
+algo_combinations, py_combinations = algorithmic_method(fruits, N), python_method(fruits, N)
+
+print(f"Алгоритмический метод: {len(algo_combinations)} комбинаций, {time_algo:.6f} секунд")
+print(f"combinations_with_replacement: {len(py_combinations)} комбинаций, {time_py:.6f} секунд")
+
+print("\n--- Все возможные варианты на неделю ---")
+for i, menu in enumerate(py_combinations, 1):
+    print(f"{i}) {' | '.join(menu)}")
+
+fruit_prices = {'Яблоко': 10, 'Банан': 15, 'Апельсин': 20}
+max_price = 100
+
+def optimized_method(fruits, N, prices, max_price):
+    return [c for c in python_method(fruits, N) if sum(prices[f] for f in c) <= max_price and all(c.count(f) <= 4 for f in c)]
+
+optimal_combinations = optimized_method(fruits, N, fruit_prices, max_price)
+
+print(f"\nОптимизированных меню (цена <= {max_price}, не более 4 повторений): {len(optimal_combinations)}")
+for i, menu in enumerate(optimal_combinations, 1):
+    print(f"{i}) {' | '.join(menu)} — {sum(fruit_prices[f] for f in menu)} руб.")
+

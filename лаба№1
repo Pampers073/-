@@ -1,0 +1,17 @@
+def hex_numb(hex_str):
+    hex_str = hex_str.upper()
+    return (hex_str and all(ch in "0123456789ABCDEF" for ch in hex_str) and
+            hex_str[0] in "13579BDF" and hex_str[-1] in "02468ACE" and
+            int(hex_str, 16) <= 0x3FF)
+def preobraz_chislo(hex_str):
+    words = {'0': "ноль", '2': "два", '4': "четыре", '6': "шесть", '8': "восемь", 'A': "десять", 'C': "двенадцать", 'E': "четырнадцать"}
+    return ' '.join(words.get(ch, ch) for ch in hex_str)
+def process_file(filename):
+    try:
+        with open(filename) as file:
+            for word in file.read().split():
+                if hex_numb(word):
+                    print(word, preobraz_chislo(word))
+    except FileNotFoundError:
+        print(f"Файл '{filename}' не найден!")
+process_file("arr.txt")

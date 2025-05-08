@@ -1,0 +1,13 @@
+import re
+def hex_numb(hex_str):
+    return bool(re.fullmatch(r'[13579BDF][0-9A-F]*[02468ACE]', hex_str, re.I)) and int(hex_str, 16) <= 0x3FF
+def process_file(filename):
+    words = {'0': "ноль", '2': "два", '4': "четыре", '6': "шесть", '8': "восемь", 'A': "десять", 'C': "двенадцать", 'E': "четырнадцать"}
+    try:
+        with open(filename) as file:
+            for word in file.read().split():
+                if hex_numb(word):
+                    print(word, ' '.join(words.get(ch.upper(), ch) for ch in word))
+    except FileNotFoundError:
+        print(f"Файл '{filename}' не найден!")
+process_file("arr.txt")
